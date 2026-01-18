@@ -1,0 +1,609 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #050814;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  background: var(--bg);
+}
+
+/* small UI polish */
+button:focus,
+a:focus {
+  outline: none;
+}
+
+/* grid-lines util used in hero */
+.bg-grid-lines {
+  background-size: 28px 28px;
+}
+
+.noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+@keyframes ripple {
+  from {
+    transform: scale(0);
+    opacity: 0.6;
+  }
+  to {
+    transform: scale(2.5);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+@keyframes binary-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.binary-scroll {
+  display: inline-block;
+  animation: binary-scroll 14s linear infinite;
+}
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 18s linear infinite;
+}
+/* ===============================
+   Binary scroll (base layer)
+================================ */
+@keyframes binary-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.binary-wrapper {
+  position: relative;
+  width: max-content;
+  display: flex;
+}
+
+.binary-scroll {
+  color: rgba(0, 245, 255, 0.85);
+  text-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
+  white-space: nowrap;
+  animation: binary-scroll 14s linear infinite,
+    binary-color-shift 6s ease-in-out infinite;
+}
+
+/* ===============================
+   Color shift: cyan ↔ orange
+================================ */
+@keyframes binary-color-shift {
+  0% {
+    color: rgba(0, 245, 255, 0.85);
+    text-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
+  }
+  50% {
+    color: rgba(243, 112, 9, 0.9);
+    text-shadow: 0 0 8px rgba(243, 112, 9, 0.45);
+  }
+  100% {
+    color: rgba(0, 245, 255, 0.85);
+    text-shadow: 0 0 6px rgba(0, 245, 255, 0.4);
+  }
+}
+
+/* ===============================
+   Corruption overlay (glitch)
+================================ */
+.binary-corrupt {
+  position: absolute;
+  left: 0;
+  top: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 4px rgba(243, 112, 9, 0.8), 0 0 8px rgba(0, 245, 255, 0.6);
+
+  animation: binary-scroll 14s linear infinite,
+    binary-corrupt-flicker 3.5s steps(1) infinite;
+}
+
+/* ===============================
+   Random corruption timing
+================================ */
+@keyframes binary-corrupt-flicker {
+  0%,
+  92%,
+  100% {
+    opacity: 0;
+    transform: translateX(0);
+  }
+  93% {
+    opacity: 0.9;
+    transform: translateX(-1px);
+  }
+  94% {
+    opacity: 0.4;
+    transform: translateX(1px);
+  }
+  95% {
+    opacity: 0.8;
+    transform: translateX(0);
+  }
+}
+@keyframes divider-sweep {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(50%);
+  }
+}
+
+.animate-divider-sweep {
+  animation: divider-sweep 12s linear infinite;
+}
+
+.reveal-active {
+  transform: translateY(0) !important;
+  opacity: 1 !important;
+}
+
+@keyframes energy-drift-strong {
+  0% {
+    background-position: 0% 0%, 100% 100%;
+  }
+  50% {
+    background-position: 120% 40%, -20% 60%;
+  }
+  100% {
+    background-position: 0% 0%, 100% 100%;
+  }
+}
+
+.animate-energy-drift-strong {
+  background-size: 250% 250%;
+  animation: energy-drift-strong 60s ease-in-out infinite;
+}
+
+/* ===============================
+   Volumetric Fog
+================================ */
+@keyframes fog-drift {
+  0% {
+    transform: translateX(-10%) translateY(-5%);
+    opacity: 0.35;
+  }
+  50% {
+    transform: translateX(10%) translateY(5%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateX(-10%) translateY(-5%);
+    opacity: 0.35;
+  }
+}
+
+.fog-layer {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+      circle at 30% 40%,
+      rgba(0, 245, 255, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(circle at 70% 60%, rgba(243, 112, 9, 0.16), transparent 60%);
+  filter: blur(80px);
+  animation: fog-drift 40s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ===============================
+   Scanline Interference (VISIBLE)
+================================ */
+
+/* Vertical drift */
+@keyframes scanline-move {
+  0% {
+    background-position-y: 0;
+  }
+  100% {
+    background-position-y: 100%;
+  }
+}
+
+/* Signal jitter — short bursts */
+@keyframes scanline-jitter {
+  0% {
+    transform: translateX(0);
+    opacity: 0.16;
+  }
+
+  10% {
+    transform: translateX(-1px);
+  }
+
+  12% {
+    transform: translateX(2px);
+    opacity: 0.28;
+  }
+
+  14% {
+    transform: translateX(-2px);
+  }
+
+  16% {
+    transform: translateX(0);
+    opacity: 0.18;
+  }
+
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Rare hard glitch spike */
+@keyframes scanline-spike {
+  0%,
+  96%,
+  100% {
+    filter: none;
+  }
+
+  97% {
+    filter: brightness(1.4) contrast(1.2);
+  }
+
+  98% {
+    filter: brightness(0.8);
+  }
+}
+
+.scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 245, 255, 0.18),
+    rgba(0, 245, 255, 0.18) 2px,
+    transparent 2px,
+    transparent 6px
+  );
+
+  animation: scanline-move 12s linear infinite,
+    scanline-jitter 9s steps(1) infinite, scanline-spike 8s steps(1) infinite;
+}
+
+@keyframes glitch-spike {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  5% {
+    opacity: 0.8;
+  }
+  10% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-100%);
+  }
+}
+.glitch-spikes::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(0, 245, 255, 0.35),
+    rgba(0, 245, 255, 0)
+  );
+  width: 4px;
+  height: 140%;
+  left: 18%;
+  animation: glitch-spike 2s infinite;
+}
+
+.glitch-spikes::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+    to bottom,
+    rgba(243, 112, 9, 0.35),
+    rgba(243, 112, 9, 0)
+  );
+  width: 4px;
+  height: 140%;
+  left: 72%;
+  animation: glitch-spike 3s infinite 3s;
+}
+
+/* //BUTTONS */
+
+.glow-btn {
+  position: relative;
+  isolation: isolate;
+}
+
+.glow-btn::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  opacity: 0;
+  z-index: -1;
+  filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+.glow-btn-cyan::before {
+  background: radial-gradient(circle, rgba(0, 245, 255, 0.6), transparent 70%);
+}
+
+.glow-btn-orange::before {
+  background: radial-gradient(circle, rgba(243, 112, 9, 0.6), transparent 70%);
+}
+
+.glow-btn:hover::before {
+  opacity: 1;
+  animation: glow-pulse-soft 2.8s ease-in-out infinite;
+}
+
+@keyframes glow-pulse-soft {
+  0% {
+    transform: scale(0.95);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(0.95);
+  }
+}
+
+/* ===============================
+   Aggressive Text Glitch
+================================ */
+
+.glitch-active .glitch-text {
+  position: relative;
+  animation: glitch-jitter 0.45s steps(2) both;
+}
+
+/* horizontal + vertical jitter */
+@keyframes glitch-jitter {
+  0% {
+    transform: translate(0);
+    filter: blur(0);
+  }
+  20% {
+    transform: translate(-1.2px, 0.6px);
+    filter: blur(0.3px);
+  }
+  40% {
+    transform: translate(1.6px, -0.4px);
+  }
+  60% {
+    transform: translate(-0.8px, 0.3px);
+    filter: blur(0.2px);
+  }
+  100% {
+    transform: translate(0);
+    filter: blur(0);
+  }
+}
+
+/* RGB split layers */
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.glitch-active .glitch-text::before {
+  color: rgba(0, 245, 255, 0.9);
+  transform: translate(-1px, 0);
+  opacity: 0.45;
+}
+
+.glitch-active .glitch-text::after {
+  color: rgba(243, 112, 9, 0.9);
+  transform: translate(1px, 0);
+  opacity: 0.45;
+}
+
+/* ===============================
+   Signal Scramble Glitch
+================================ */
+
+.glitch-active .glitch-text {
+  position: relative;
+  animation: glitch-jitter 0.5s steps(2) both;
+}
+
+/* jitter motion */
+@keyframes glitch-jitter {
+  0% {
+    transform: translate(0);
+  }
+  25% {
+    transform: translate(-1.4px, 0.6px);
+  }
+  50% {
+    transform: translate(1.2px, -0.4px);
+  }
+  75% {
+    transform: translate(-0.6px, 0.2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* chromatic bleed */
+.glitch-text::before,
+.glitch-text::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.glitch-active .glitch-text::before {
+  opacity: 0.45;
+  color: rgb(0, 245, 255);
+  transform: translate(-1px, 0);
+}
+
+.glitch-active .glitch-text::after {
+  opacity: 0.4;
+  color: rgb(243, 112, 9);
+  transform: translate(1px, 0);
+}
+
+/* ===============================
+   Soft Signal Glitch
+================================ */
+
+.glitch-soft {
+  animation: glitch-soft-jitter 0.35s ease-in-out;
+}
+
+@keyframes glitch-soft-jitter {
+  0% {
+    transform: translate(0);
+  }
+  30% {
+    transform: translate(-0.6px, 0.3px);
+  }
+  60% {
+    transform: translate(0.5px, -0.2px);
+  }
+  100% {
+    transform: translate(0);
+  }
+}
+
+/* ===============================
+   GLITCH GRID BACKGROUND GAME
+================================ */
+
+.glitch-grid {
+  background-image: linear-gradient(
+      rgba(0, 245, 255, 0.35) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(243, 112, 9, 0.35) 1px, transparent 1px);
+  background-size: 20px 20px;
+  animation: grid-drift 14s linear infinite;
+}
+
+@keyframes grid-drift {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -120px 60px;
+  }
+}
+
+/* Cyan + orange glow breathing */
+@keyframes grid-pulse {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.32;
+  }
+}
+
+.animate-grid-pulse {
+  animation: grid-pulse 6s ease-in-out infinite;
+}
+
+.animate-grid-pulse-delayed {
+  animation: grid-pulse 8s ease-in-out infinite reverse;
+}
+
+/* CRT scan jitter */
+.glitch-scan {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 255, 255, 0.08) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  animation: scan-jitter 0.18s steps(2) infinite;
+}
+
+@keyframes scan-jitter {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(1px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/*CONTACT PAGE ORBS*/
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin-slower-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 40s linear infinite;
+}
+
+.animate-spin-slower-reverse {
+  animation: spin-slower-reverse 70s linear infinite;
+}
